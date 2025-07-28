@@ -1,0 +1,21 @@
+﻿services:
+  myservice:
+    image: mysql:latest
+    container_name: mycontainer
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: library
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 12345678
+    ports:
+      - "3306:3306" 
+    volumes:
+      - library_volume:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p12345678"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      
+volumes:
+  library_volume:

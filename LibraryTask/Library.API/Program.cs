@@ -1,9 +1,16 @@
+using Library.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddInfrastructure(options =>
+    options.UseMySQL(builder.Configuration.GetConnectionString("DatabaseConnectionString"))
+);
 
 var app = builder.Build();
 
