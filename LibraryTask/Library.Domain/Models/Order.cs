@@ -6,5 +6,5 @@ public class Order
     public DateTime OrderDate { get; set; }
     
     // navigation properties 
-    public List<Book>? Books { get; set; }
+    public List<Book> Books { get; set; }
 }

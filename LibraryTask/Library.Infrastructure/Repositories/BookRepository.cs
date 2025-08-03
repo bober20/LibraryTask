@@ -12,6 +12,8 @@ public class BookRepository(LibraryDbContext dbContext) : IBookRepository
     {
         // I decided to use a transaction to ensure that the book is added atomically
         // Result pattern is used to handle exceptions that may occur during request cancellation, other errors
+        book.Id = Guid.NewGuid();
+        
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
         try
         {

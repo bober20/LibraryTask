@@ -10,15 +10,27 @@ public class OrderRepository(LibraryDbContext dbContext) : IOrderRepository
 {
     public async Task<Result<Guid>> CreateOrder(Order order, CancellationToken cancellationToken = default)
     {
+        var bookIds = order.Books.Select(b => b.Id).ToList();
+
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
         try
         {
-            var bookEntity = await dbContext.AddAsync(order, cancellationToken);
+            var availableBooks = await dbContext.Books
+                .Where(b => bookIds.Contains(b.Id) && b.OrderId == null)
+                .ToListAsync(cancellationToken);
+
+            if (availableBooks.Count != bookIds.Count)
+            {
+                return Result.Fail("One or more books don't exist or are already ordered");
+            }
+
+            order.Books = availableBooks;
+            var orderEntry = await dbContext.AddAsync(order, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
-            
+        
             await transaction.CommitAsync(cancellationToken);
-            
-            return Result.Ok(bookEntity.Entity.Id);
+        
+            return Result.Ok(orderEntry.Entity.Id);
         }
         catch (Exception ex)
         {
