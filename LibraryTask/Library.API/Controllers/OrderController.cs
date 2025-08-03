@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Library.API.Controllers;
 
-public class OrderController(IOrderService orderService): ControllerBase
+public class OrderController(IOrderService orderService, ILogger<OrderController> logger): ControllerBase
 {
     [HttpGet("api/[controller]")]
     public async Task<IActionResult> GetOrders([FromQuery] Guid? id, [FromQuery] DateTime? orderDate, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation($"Retrieving orders with query parameters - Id: {id}, OrderDate: {orderDate}");
+        
         var orders = await orderService.GetOrders(order =>
             (!id.HasValue || order.Id == id) &&
             (!orderDate.HasValue || order.OrderDate.Date == orderDate.Value.Date));
@@ -25,6 +27,8 @@ public class OrderController(IOrderService orderService): ControllerBase
     [HttpPost("api/[controller]")]
     public async Task<IActionResult> CreateOrder([FromBody] OrderDTO order, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation($"Creating order with details: OrderDate: {order?.OrderDate}, BooksNumber: {order?.Books.Count}");
+        
         if (order == null)
         {
             return BadRequest("Order data is required.");

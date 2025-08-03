@@ -16,7 +16,8 @@ public class OrderService(IOrderRepository repository, IMapper mapper) : IOrderS
         return await repository.CreateOrder(orderModel, cancellationToken);
     }
     
-    public async Task<Result<List<OrderDTO>>> GetOrders(Expression<Func<Order, bool>> filter, CancellationToken cancellationToken = default)
+    public async Task<Result<List<OrderDTO>>> GetOrders(Expression<Func<Order, bool>> filter, 
+        CancellationToken cancellationToken = default)
     {
         var result = await repository.GetOrders(filter, cancellationToken);
         if (result.IsFailed)

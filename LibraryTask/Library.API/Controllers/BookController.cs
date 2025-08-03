@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Library.API.Controllers;
 
-public class BookController(IBookService bookService) : ControllerBase
+public class BookController(IBookService bookService, ILogger<BookController> logger) : ControllerBase
 {
     [HttpGet]
     [Route("api/[controller]/{id:guid}")]
@@ -23,6 +23,8 @@ public class BookController(IBookService bookService) : ControllerBase
     [Route("api/[controller]")]
     public async Task<IActionResult> GetBooks([FromQuery] string? title, [FromQuery] DateOnly? publishDate, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation($"Fetching books with title: {title} and publish date: {publishDate}");
+        
         var result = await bookService.GetBooks(book => 
             (string.IsNullOrEmpty(title) || book.Title.ToLower().Contains(title.ToLower())) &&
             (!publishDate.HasValue || book.PublishDate == publishDate), cancellationToken);
@@ -32,13 +34,15 @@ public class BookController(IBookService bookService) : ControllerBase
             return Ok(result.Value);
         }
         
-        return NotFound(result.Errors?.FirstOrDefault()?.Message ?? "There are no books.");
+        return NotFound(result.Errors?.FirstOrDefault()?.Message ?? "There are no books with this query.");
     }
     
     [HttpPost]
     [Route("api/[controller]")]
     public async Task<IActionResult> CreateBook([FromBody] BookDTO book, CancellationToken cancellationToken = default)
     {
+        logger.LogInformation($"Creating book with title: {book?.Title} and author: {book?.PublishDate}");
+        
         if (book == null)
         {
             return BadRequest("Book data is required.");

@@ -21,18 +21,19 @@ public class BookService(IBookRepository bookRepository, IMapper mapper) : IBook
         var result = await bookRepository.GetBook(id, cancellationToken);
         if (result.IsFailed)
         {
-            return Result.Fail("There is no book with this id");
+            return Result.Fail(result.Errors);
         }
         
         return Result.Ok(mapper.Map<BookDTO>(result.Value));
     }
     
-    public async Task<Result<List<BookDTO>>> GetBooks(Expression<Func<Book, bool>>? predicate = null, CancellationToken cancellationToken = default)
+    public async Task<Result<List<BookDTO>>> GetBooks(Expression<Func<Book, bool>>? predicate = null, 
+        CancellationToken cancellationToken = default)
     {
         var result = await bookRepository.GetBooks(predicate, cancellationToken);
         if (result.IsFailed)
         {
-            return Result.Fail("There are no books that will match the specified query");
+            return Result.Fail(result.Errors);
         }
         
         return Result.Ok(result.Value.Select(book => mapper.Map<BookDTO>(book)).ToList());
