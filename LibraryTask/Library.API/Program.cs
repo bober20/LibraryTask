@@ -1,4 +1,5 @@
 using Library.API;
+using Library.API.Middleware;
 using Library.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionMiddleware();
 
 app.UseHttpsRedirection();
 
