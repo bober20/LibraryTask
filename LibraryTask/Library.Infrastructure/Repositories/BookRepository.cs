@@ -16,6 +16,7 @@ public class BookRepository(LibraryDbContext dbContext) : IBookRepository
         try
         {
             var bookEntity = await dbContext.AddAsync(book, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             
             await transaction.CommitAsync(cancellationToken);
             
@@ -35,6 +36,10 @@ public class BookRepository(LibraryDbContext dbContext) : IBookRepository
         
         try
         {
+            var books = await dbContext.Books
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+            
             var book = await dbContext.Books.FindAsync(id, cancellationToken);
             return Result.Ok(book);
         }
@@ -48,7 +53,14 @@ public class BookRepository(LibraryDbContext dbContext) : IBookRepository
     {
         try
         {
-            var books = await dbContext.Books.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+            IQueryable<Book> query = dbContext.Books.AsNoTracking();
+        
+            if (predicate is not null)
+            {
+                query = query.Where(predicate);
+            }
+        
+            var books = await query.ToListAsync(cancellationToken);
             return Result.Ok(books);
         }
         catch (Exception ex)

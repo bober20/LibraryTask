@@ -10,8 +10,8 @@ public static class DependencyInjection
     {
         services.AddMapper();
         
-        services.AddSingleton<IBookService, BookService>();
-        services.AddSingleton<IOrderService, OrderService>();
+        services.AddTransient<IBookService, BookService>();
+        services.AddTransient<IOrderService, OrderService>();
         
         return services;
     }

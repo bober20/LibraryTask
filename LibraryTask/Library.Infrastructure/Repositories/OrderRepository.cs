@@ -14,6 +14,7 @@ public class OrderRepository(LibraryDbContext dbContext) : IOrderRepository
         try
         {
             var bookEntity = await dbContext.AddAsync(order, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             
             await transaction.CommitAsync(cancellationToken);
             
@@ -26,15 +27,20 @@ public class OrderRepository(LibraryDbContext dbContext) : IOrderRepository
         }
     }
 
-    public async Task<Result<List<Order>>> GetOrders(Expression<Func<Order, bool>> filter, CancellationToken cancellationToken = default)
+    public async Task<Result<List<Order>>> GetOrders(Expression<Func<Order, bool>>? filter, CancellationToken cancellationToken = default)
     {
         try
         {
-            var orders = await dbContext.Orders
+            IQueryable<Order> query = dbContext.Orders
                 .Include(o => o.Books)
-                .AsNoTracking()
-                .Where(filter)
-                .ToListAsync(cancellationToken);
+                .AsNoTracking();
+
+            if (filter is not null)
+            {
+                query = query.Where(filter);
+            }
+            
+            var orders = await query.ToListAsync(cancellationToken);
             return Result.Ok(orders);
         }
         catch (Exception ex)
