@@ -30,7 +30,11 @@ public class OrderRepository(LibraryDbContext dbContext) : IOrderRepository
     {
         try
         {
-            var orders = await dbContext.Orders.AsNoTracking().Where(filter).ToListAsync(cancellationToken);
+            var orders = await dbContext.Orders
+                .Include(o => o.Books)
+                .AsNoTracking()
+                .Where(filter)
+                .ToListAsync(cancellationToken);
             return Result.Ok(orders);
         }
         catch (Exception ex)

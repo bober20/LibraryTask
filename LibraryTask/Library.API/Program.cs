@@ -1,3 +1,4 @@
+using Library.API;
 using Library.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(options =>
     options.UseMySQL(builder.Configuration.GetConnectionString("DatabaseConnectionString"))
 );
+builder.Services.AddAPI();
 
 var app = builder.Build();
 
